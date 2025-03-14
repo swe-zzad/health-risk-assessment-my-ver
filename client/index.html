@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Risk Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            background-color: #4c00b0;
+            color: white;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: black;
+        }
+        .error {
+            color: red;
+        }
+        button {
+            background-color: #ca5cdd;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top:30px;
+        }
+        button:hover {
+            background-color: #4c00b0;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            display:block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Health Insurance Risk Calculator</h2>
+        <p id="error" class="error"></p>
+        <form id="riskForm">
+            <label>Age: <input type="number" id="age" required></label><br>
+            <label>Height (cm): <input type="number" id="height" required></label><br>
+            <label>Weight (kg): <input type="number" id="weight" required></label><br>
+            <label>Blood Pressure:
+                <select id="bloodPressure">
+                    <option value="normal">Normal</option>
+                    <option value="elevated">Elevated</option>
+                    <option value="stage1">Stage 1</option>
+                    <option value="stage2">Stage 2</option>
+                    <option value="crisis">Crisis</option>
+                </select>
+            </label><br>
+            <label>Family History:
+                <select id="familyHistory">
+                    <option value="none">None</option>
+                    <option value="diabetes">Diabetes</option>
+                    <option value="cancer">Cancer</option>
+                    <option value="alzheimers">Alzheimer’s</option>
+                </select>
+            </label><br>
+            <button type="submit">Calculate Risk</button>
+        </form>
+        <p id="result"></p>
+    </div>
+    
+    <script>
+        document.getElementById('riskForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            let errorElem = document.getElementById('error');
+            let age = document.getElementById('age').value;
+            let height = document.getElementById('height').value;
+            let weight = document.getElementById('weight').value;
+
+            if (age < 0) {
+                errorElem.textContent = "ERROR: Age cannot be negative";
+                return;
+            }
+            if (height < 60) {
+                errorElem.textContent = "ERROR: Height must be at least 60 cm";
+                return;
+            }
+            if (weight < 0) {
+                errorElem.textContent = "ERROR: Weight cannot be negative";
+                return;
+            }
+            errorElem.textContent = "";
+            
+            const formData = {
+                age: document.getElementById('age').value,
+                height: height,
+                weight: document.getElementById('weight').value,
+                bloodPressure: document.getElementById('bloodPressure').value,
+                familyHistory: document.getElementById('familyHistory').value
+            };
+
+            const response = await fetch('http://localhost:5000/api/calculate-risk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+            if (data) {
+                document.getElementById('result').textContent = 'Risk Category: ' + data.riskCategory + ' | Total Score: ' + data.score;
+            } else {
+                document.getElementById('result').textContent = 'Something went wrong. Please try again.';
+            }
+
+        });
+    </script>
+</body>
+</html>
