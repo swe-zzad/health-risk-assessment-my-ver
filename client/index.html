@@ -1,132 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Risk Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: auto;
-            padding: 20px;
-            background-color: #4c00b0;
-            color: white;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            color: black;
-        }
-        .error {
-            color: red;
-        }
-        button {
-            background-color: #ca5cdd;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            margin-top:30px;
-        }
-        button:hover {
-            background-color: #4c00b0;
-        }
-        select, input {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        h2 {
-            text-align: center;
-        }
-        label {
-            display:block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Roller</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+      background-color: #E6E6FA; /* Lavender background */
+      color: #4B0082; /* Indigo text for contrast */
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #D8BFD8; /* Thistle button color */
+      border: 2px solid #BA55D3; /* Medium Orchid border */
+      border-radius: 8px;
+      color: #4B0082;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #BA55D3; /* Medium Orchid on hover */
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .result {
+      font-size: 24px;
+      margin-top: 20px;
+      color: #4B0082;
+    }
+
+    select {
+      padding: 5px;
+      border: 2px solid #BA55D3;
+      border-radius: 5px;
+      background-color: #FFF0F5; /* Lavender Blush for select */
+      color: #4B0082;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <h2>Health Insurance Risk Calculator</h2>
-        <p id="error" class="error"></p>
-        <form id="riskForm">
-            <label>Age: <input type="number" id="age" required></label><br>
-            <label>Height (cm): <input type="number" id="height" required></label><br>
-            <label>Weight (kg): <input type="number" id="weight" required></label><br>
-            <label>Blood Pressure:
-                <select id="bloodPressure">
-                    <option value="normal">Normal</option>
-                    <option value="elevated">Elevated</option>
-                    <option value="stage1">Stage 1</option>
-                    <option value="stage2">Stage 2</option>
-                    <option value="crisis">Crisis</option>
-                </select>
-            </label><br>
-            <label>Family History:
-                <select id="familyHistory">
-                    <option value="none">None</option>
-                    <option value="diabetes">Diabetes</option>
-                    <option value="cancer">Cancer</option>
-                    <option value="alzheimers">Alzheimer’s</option>
-                </select>
-            </label><br>
-            <button type="submit">Calculate Risk</button>
-        </form>
-        <p id="result"></p>
-    </div>
-    
-    <script>
-        document.getElementById('riskForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            let errorElem = document.getElementById('error');
-            let age = document.getElementById('age').value;
-            let height = document.getElementById('height').value;
-            let weight = document.getElementById('weight').value;
+  <h1>Dice Roller</h1>
+  <label for="sides">Select Dice Sides:</label>
+  <select id="sides">
+    <option value="6">6 Sides</option>
+    <option value="10">10 Sides</option>
+    <option value="20">20 Sides</option>
+  </select>
+  <br><br>
+  <button onclick="rollDice()">Roll the Dice</button>
 
-            if (age < 0) {
-                errorElem.textContent = "ERROR: Age cannot be negative";
-                return;
-            }
-            if (height < 60) {
-                errorElem.textContent = "ERROR: Height must be at least 60 cm";
-                return;
-            }
-            if (weight < 0) {
-                errorElem.textContent = "ERROR: Weight cannot be negative";
-                return;
-            }
-            errorElem.textContent = "";
-            
-            const formData = {
-                age: document.getElementById('age').value,
-                height: height,
-                weight: document.getElementById('weight').value,
-                bloodPressure: document.getElementById('bloodPressure').value,
-                familyHistory: document.getElementById('familyHistory').value
-            };
+  <div class="result" id="result"></div>
 
-            const response = await fetch('http://localhost:8080/api/calculate-risk', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
+  <script>
+    function rollDice() {
+      const sides = document.getElementById('sides').value;
 
-            const data = await response.json();
-            if (data) {
-                document.getElementById('result').textContent = 'Risk Category: ' + data.riskCategory + ' | Total Score: ' + data.score;
-            } else {
-                document.getElementById('result').textContent = 'Something went wrong. Please try again.';
-            }
-
-        });
-    </script>
+      fetch('https://dice-zzam-repo-a0gkgnfue3hdbjc6.uaenorth-01.azurewebsites.net/roll?sides=' + sides)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("result").innerHTML = `Rolled: ${data.roll}`;
+        })
+        .catch(error => console.error("Error:", error));
+    }
+  </script>
 </body>
+
 </html>
